@@ -1,1 +1,0 @@
-# typing-speed-counter-backend
