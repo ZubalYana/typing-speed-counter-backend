@@ -6,6 +6,8 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+const cors = require('cors');
+app.use(cors());
 
 app.use(express.json());
 
@@ -37,6 +39,18 @@ app.post('/text', async (req: Request, res: Response) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 });
+
+app.get('/random-text', async (req: Request, res: Response) => {
+    try {
+        const result = await TextModel.aggregate([{ $sample: { size: 1 } }]);
+        const randomText = result[0];
+        res.json(randomText);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
 
 app.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}`);
