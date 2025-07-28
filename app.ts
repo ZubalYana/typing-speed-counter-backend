@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 
 import textRoutes from './routes/textRoutes';
+import authRoutes from './routes/authRoutes';
 
 dotenv.config();
 
@@ -13,6 +14,7 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 app.use('/', textRoutes);
+app.use('/', authRoutes);
 
 mongoose
     .connect(process.env.MONGO_URL as string)
