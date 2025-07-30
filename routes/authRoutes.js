@@ -50,4 +50,33 @@ router.post('/signUp', (req, res) => __awaiter(void 0, void 0, void 0, function*
         res.sendStatus(500).json({ message: 'Internal server error' });
     }
 }));
+router.post('/login', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { email, password } = req.body;
+        const user = yield User_1.default.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        const isMatch = yield bcrypt_1.default.compare(password, user.password);
+        if (!isMatch) {
+            return res.status(401).json({ message: 'Invalid credentials' });
+        }
+        const token = jsonwebtoken_1.default.sign({ userId: user._id }, JWT_SECRET, {
+            expiresIn: '7d',
+        });
+        res.status(200).json({
+            message: 'Login successful',
+            token,
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+            },
+        });
+    }
+    catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+}));
 exports.default = router;
