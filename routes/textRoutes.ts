@@ -18,12 +18,28 @@ router.post('/text', async (req: Request<{}, {}, IText>, res: Response) => {
 
 router.get('/random-text', async (req: Request, res: Response) => {
     try {
-        const result = await TextModel.aggregate([{ $sample: { size: 1 } }]);
-        res.json(result[0]);
+        const lang = req.query.lang;
+        let pipeline: any[] = [];
+
+        if (lang) {
+            pipeline.push({ $match: { language: lang } })
+        }
+
+        pipeline.push({ $sample: { size: 1 } })
+        const result = await TextModel.aggregate(pipeline)
+
+
+        if (lang && (!result || result.length === 0)) {
+            const fallback = await TextModel.aggregate([{ $sample: { size: 1 } }]);
+            res.json(fallback[0]);
+        } else {
+            res.json(result[0]);
+        }
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Internal server error' });
     }
 });
+
 
 export default router;

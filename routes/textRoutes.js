@@ -29,8 +29,20 @@ router.post('/text', (req, res) => __awaiter(void 0, void 0, void 0, function* (
 }));
 router.get('/random-text', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const result = yield Text_1.default.aggregate([{ $sample: { size: 1 } }]);
-        res.json(result[0]);
+        const lang = req.query.lang;
+        let pipeline = [];
+        if (lang) {
+            pipeline.push({ $match: { language: lang } });
+        }
+        pipeline.push({ $sample: { size: 1 } });
+        const result = yield Text_1.default.aggregate(pipeline);
+        if (lang && (!result || result.length === 0)) {
+            const fallback = yield Text_1.default.aggregate([{ $sample: { size: 1 } }]);
+            res.json(fallback[0]);
+        }
+        else {
+            res.json(result[0]);
+        }
     }
     catch (error) {
         console.error(error);
