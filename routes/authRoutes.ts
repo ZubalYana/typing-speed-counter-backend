@@ -5,6 +5,7 @@ import jwt from 'jsonwebtoken'
 import dotenv from 'dotenv'
 dotenv.config()
 import nodemailer from 'nodemailer'
+import authMiddleware from '../middleware/AuthMiddleware'
 
 const router = Router();
 
@@ -190,8 +191,12 @@ router.post('/magic-login', async (req: Request, res: Response) => {
     }
 });
 
-router.get('/test', (req: Request, res: Response) => {
-    res.status(200).json({ message: 'test' })
+router.get('/user-profile', authMiddleware, async (req: Request, res: Response) => {
+    const userId = (req as any).userId;
+    const user = await UserModel.findById(userId).select('-password');
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    res.status(200).json({ user })
 })
 
 export default router;
