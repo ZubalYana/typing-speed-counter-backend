@@ -8,7 +8,8 @@ const userSchema = new mongoose_1.default.Schema({
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    isVerified: { type: Boolean }
+    isVerified: { type: Boolean, default: false, required: true },
+    registered: { type: Date, default: Date.now, required: true }
 });
 const UserModel = mongoose_1.default.model('User', userSchema);
 exports.default = UserModel;
