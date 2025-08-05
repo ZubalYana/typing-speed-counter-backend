@@ -1,7 +1,7 @@
 import mongoose from 'mongoose'
 
 const typingTestSchema = new mongoose.Schema({
-    user: { Type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     wpm: { type: Number, required: true },
     cpm: { type: Number, required: true },
     accuracy: { type: Number, required: true },

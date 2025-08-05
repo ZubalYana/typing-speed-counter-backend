@@ -5,6 +5,7 @@ import cors from 'cors';
 
 import textRoutes from './routes/textRoutes';
 import authRoutes from './routes/authRoutes';
+import typingTestRoutes from './routes/typingTestRoutes'
 
 dotenv.config();
 
@@ -15,6 +16,7 @@ app.use(cors());
 app.use(express.json());
 app.use('/', textRoutes);
 app.use('/', authRoutes);
+app.use('/', typingTestRoutes)
 
 mongoose
     .connect(process.env.MONGO_URL as string)
