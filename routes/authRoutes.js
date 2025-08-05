@@ -19,6 +19,7 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const nodemailer_1 = __importDefault(require("nodemailer"));
+const AuthMiddleware_1 = __importDefault(require("../middleware/AuthMiddleware"));
 const router = (0, express_1.Router)();
 const JWT_SECRET = process.env.JWT_SECRET || 'secret';
 router.post('/signUp', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -176,7 +177,11 @@ router.post('/magic-login', (req, res) => __awaiter(void 0, void 0, void 0, func
         res.status(500).json({ message: 'Internal server error' });
     }
 }));
-router.get('/test', (req, res) => {
-    res.status(200).json({ message: 'test' });
-});
+router.get('/user-profile', AuthMiddleware_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const userId = req.userId;
+    const user = yield User_1.default.findById(userId).select('-password');
+    if (!user)
+        return res.status(404).json({ message: 'User not found' });
+    res.status(200).json({ user });
+}));
 exports.default = router;
