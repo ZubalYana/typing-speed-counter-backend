@@ -9,7 +9,8 @@ const userSchema = new mongoose_1.default.Schema({
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     isVerified: { type: Boolean, default: false, required: true },
-    registered: { type: Date, default: Date.now, required: true }
+    registered: { type: Date, default: Date.now, required: true },
+    role: { type: String, default: "User", required: true }
 });
 const UserModel = mongoose_1.default.model('User', userSchema);
 exports.default = UserModel;
