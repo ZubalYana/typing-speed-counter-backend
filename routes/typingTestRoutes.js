@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const AuthMiddleware_1 = __importDefault(require("../middleware/AuthMiddleware"));
 const TypingTest_1 = __importDefault(require("../models/TypingTest"));
+const mongoose_1 = __importDefault(require("mongoose"));
 const router = (0, express_1.Router)();
 router.post('/typing-tests', AuthMiddleware_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -96,6 +97,42 @@ router.get('/typing-tests/summary', AuthMiddleware_1.default, (req, res) => __aw
     }
     catch (err) {
         console.error('typing test summary error:', err);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+}));
+router.get('/cpm-statistics', AuthMiddleware_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const userId = req.userId;
+        const { language } = req.query;
+        if (!language || typeof language !== 'string') {
+            return res.status(400).json({ message: 'Language query parameter is required' });
+        }
+        const lastTwentyDays = new Date();
+        lastTwentyDays.setDate(lastTwentyDays.getDate() - 20);
+        const statistics = yield TypingTest_1.default.aggregate([
+            {
+                $match: {
+                    user: new mongoose_1.default.Types.ObjectId(userId),
+                    textLanguage: language,
+                    createdAt: { $gte: lastTwentyDays }
+                }
+            },
+            { $sort: { createdAt: -1 } },
+            { $limit: 20 },
+            {
+                $project: {
+                    _id: 0,
+                    cpm: 1,
+                    mistakes: 1,
+                    createdAt: 1,
+                    textLanguage: 1
+                }
+            }
+        ]);
+        return res.status(200).json(statistics);
+    }
+    catch (error) {
+        console.error('Error getting cpm statistics:', error);
         return res.status(500).json({ message: 'Internal server error' });
     }
 }));

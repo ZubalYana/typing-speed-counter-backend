@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import authMiddleware from '../middleware/AuthMiddleware';
 import TypingTestModel from '../models/TypingTest';
+import mongoose from 'mongoose'
 
 const router = Router();
 
@@ -94,5 +95,46 @@ router.get('/typing-tests/summary', authMiddleware, async (req: Request, res: Re
         return res.status(500).json({ message: 'Internal server error' });
     }
 });
+
+router.get('/cpm-statistics', authMiddleware, async (req: Request, res: Response) => {
+    try {
+        const userId = (req as any).userId;
+        const { language } = req.query;
+
+        if (!language || typeof language !== 'string') {
+            return res.status(400).json({ message: 'Language query parameter is required' });
+        }
+
+        const lastTwentyDays = new Date();
+        lastTwentyDays.setDate(lastTwentyDays.getDate() - 20);
+
+        const statistics = await TypingTestModel.aggregate([
+            {
+                $match: {
+                    user: new mongoose.Types.ObjectId(userId),
+                    textLanguage: language,
+                    createdAt: { $gte: lastTwentyDays }
+                }
+            },
+            { $sort: { createdAt: -1 } },
+            { $limit: 20 },
+            {
+                $project: {
+                    _id: 0,
+                    cpm: 1,
+                    mistakes: 1,
+                    createdAt: 1,
+                    textLanguage: 1
+                }
+            }
+        ]);
+
+        return res.status(200).json(statistics);
+
+    } catch (error) {
+        console.error('Error getting cpm statistics:', error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+})
 
 export default router;
