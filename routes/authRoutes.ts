@@ -11,6 +11,8 @@ const router = Router();
 
 const JWT_SECRET = process.env.JWT_SECRET || 'secret'
 
+const resend = new Resend(process.env.RESEND_API_KEY);
+
 router.post('/signUp', async (req: Request, res: Response) => {
     try {
         const { name, email, password } = req.body;
@@ -85,8 +87,6 @@ router.get('/user-profile', authMiddleware, async (req: Request, res: Response) 
 
     res.status(200).json({ user })
 })
-
-const resend = new Resend(process.env.RESEND_API_KEY);
 
 router.post('/magic-login', async (req: Request, res: Response) => {
     const { email } = req.body;

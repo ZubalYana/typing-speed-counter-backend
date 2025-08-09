@@ -22,6 +22,7 @@ const AuthMiddleware_1 = __importDefault(require("../middleware/AuthMiddleware")
 const resend_1 = require("resend");
 const router = (0, express_1.Router)();
 const JWT_SECRET = process.env.JWT_SECRET || 'secret';
+const resend = new resend_1.Resend(process.env.RESEND_API_KEY);
 router.post('/signUp', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { name, email, password } = req.body;
@@ -88,7 +89,6 @@ router.get('/user-profile', AuthMiddleware_1.default, (req, res) => __awaiter(vo
         return res.status(404).json({ message: 'User not found' });
     res.status(200).json({ user });
 }));
-const resend = new resend_1.Resend(process.env.RESEND_API_KEY);
 router.post('/magic-login', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { email } = req.body;
     if (!email)
