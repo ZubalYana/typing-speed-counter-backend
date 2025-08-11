@@ -17,8 +17,8 @@ const Text_1 = __importDefault(require("../models/Text"));
 const router = (0, express_1.Router)();
 router.post('/text', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { text, date, language, difficaltyLevel } = req.body;
-        const newText = new Text_1.default({ text, date, language, difficaltyLevel });
+        const { text, date, language, difficultyLevel } = req.body;
+        const newText = new Text_1.default({ text, date, language, difficultyLevel });
         yield newText.save();
         res.status(201).json(newText);
     }
@@ -59,9 +59,9 @@ router.get('/texts', (req, res) => __awaiter(void 0, void 0, void 0, function* (
 }));
 router.put('/texts/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
-    const { language, text, difficaltyLevel } = req.body;
+    const { language, text, difficultyLevel } = req.body;
     try {
-        const updatedText = yield Text_1.default.findByIdAndUpdate(id, { language, text, difficaltyLevel }, { new: true });
+        const updatedText = yield Text_1.default.findByIdAndUpdate(id, { language, text, difficultyLevel }, { new: true });
         res.status(200).json(updatedText);
     }
     catch (err) {

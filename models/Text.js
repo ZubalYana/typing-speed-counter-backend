@@ -6,9 +6,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importDefault(require("mongoose"));
 const textSchema = new mongoose_1.default.Schema({
     text: { type: String, required: true },
-    date: { type: Date, required: true },
+    date: { type: Date, required: true, default: Date.now },
     language: { type: String, required: true },
-    difficaltyLevel: { type: String, required: true }
+    difficultyLevel: { type: String, required: true }
 });
 const TextModel = mongoose_1.default.model('Text', textSchema);
 exports.default = TextModel;

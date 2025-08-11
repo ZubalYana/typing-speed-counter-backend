@@ -6,8 +6,8 @@ const router = Router();
 
 router.post('/text', async (req: Request<{}, {}, IText>, res: Response) => {
     try {
-        const { text, date, language, difficaltyLevel } = req.body;
-        const newText = new TextModel({ text, date, language, difficaltyLevel });
+        const { text, date, language, difficultyLevel } = req.body;
+        const newText = new TextModel({ text, date, language, difficultyLevel });
         await newText.save();
         res.status(201).json(newText);
     } catch (error) {
@@ -54,11 +54,11 @@ router.get('/texts', async (req: Request, res: Response) => {
 
 router.put('/texts/:id', async (req: Request, res: Response) => {
     const { id } = req.params;
-    const { language, text, difficaltyLevel } = req.body;
+    const { language, text, difficultyLevel } = req.body;
     try {
         const updatedText = await TextModel.findByIdAndUpdate(
             id,
-            { language, text, difficaltyLevel },
+            { language, text, difficultyLevel },
             { new: true }
         );
         res.status(200).json(updatedText);
