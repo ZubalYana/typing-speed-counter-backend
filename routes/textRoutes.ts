@@ -41,5 +41,9 @@ router.get('/random-text', async (req: Request, res: Response) => {
     }
 });
 
+router.get('/texts', async (req: Request, res: Response) => {
+    const texts = await TextModel.find();
+    res.json(texts);
+})
 
 export default router;

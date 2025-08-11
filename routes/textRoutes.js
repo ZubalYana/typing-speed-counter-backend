@@ -49,4 +49,8 @@ router.get('/random-text', (req, res) => __awaiter(void 0, void 0, void 0, funct
         res.status(500).json({ error: 'Internal server error' });
     }
 }));
+router.get('/texts', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const texts = yield Text_1.default.find();
+    res.json(texts);
+}));
 exports.default = router;
