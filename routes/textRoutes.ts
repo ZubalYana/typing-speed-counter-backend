@@ -6,8 +6,8 @@ const router = Router();
 
 router.post('/text', async (req: Request<{}, {}, IText>, res: Response) => {
     try {
-        const { text, date } = req.body;
-        const newText = new TextModel({ text, date });
+        const { text, date, language, difficaltyLevel } = req.body;
+        const newText = new TextModel({ text, date, language, difficaltyLevel });
         await newText.save();
         res.status(201).json(newText);
     } catch (error) {
@@ -35,6 +35,12 @@ router.get('/random-text', async (req: Request, res: Response) => {
         } else {
             res.json(result[0]);
         }
+
+        const difficulty = req.query.difficultyLevel;
+        if (difficulty) {
+            pipeline.push({ $match: { difficultyLevel: difficulty } });
+        }
+
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Internal server error' });
@@ -48,11 +54,11 @@ router.get('/texts', async (req: Request, res: Response) => {
 
 router.put('/texts/:id', async (req: Request, res: Response) => {
     const { id } = req.params;
-    const { language, text } = req.body;
+    const { language, text, difficaltyLevel } = req.body;
     try {
         const updatedText = await TextModel.findByIdAndUpdate(
             id,
-            { language, text },
+            { language, text, difficaltyLevel },
             { new: true }
         );
         res.status(200).json(updatedText);

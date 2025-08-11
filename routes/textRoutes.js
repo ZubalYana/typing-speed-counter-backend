@@ -17,8 +17,8 @@ const Text_1 = __importDefault(require("../models/Text"));
 const router = (0, express_1.Router)();
 router.post('/text', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { text, date } = req.body;
-        const newText = new Text_1.default({ text, date });
+        const { text, date, language, difficaltyLevel } = req.body;
+        const newText = new Text_1.default({ text, date, language, difficaltyLevel });
         yield newText.save();
         res.status(201).json(newText);
     }
@@ -43,6 +43,10 @@ router.get('/random-text', (req, res) => __awaiter(void 0, void 0, void 0, funct
         else {
             res.json(result[0]);
         }
+        const difficulty = req.query.difficultyLevel;
+        if (difficulty) {
+            pipeline.push({ $match: { difficultyLevel: difficulty } });
+        }
     }
     catch (error) {
         console.error(error);
@@ -55,9 +59,9 @@ router.get('/texts', (req, res) => __awaiter(void 0, void 0, void 0, function* (
 }));
 router.put('/texts/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
-    const { language, text } = req.body;
+    const { language, text, difficaltyLevel } = req.body;
     try {
-        const updatedText = yield Text_1.default.findByIdAndUpdate(id, { language, text }, { new: true });
+        const updatedText = yield Text_1.default.findByIdAndUpdate(id, { language, text, difficaltyLevel }, { new: true });
         res.status(200).json(updatedText);
     }
     catch (err) {
