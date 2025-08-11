@@ -51,6 +51,27 @@ router.get('/random-text', (req, res) => __awaiter(void 0, void 0, void 0, funct
 }));
 router.get('/texts', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const texts = yield Text_1.default.find();
-    res.json(texts);
+    res.status(200).json(texts);
+}));
+router.put('/texts/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    const { language, text } = req.body;
+    try {
+        const updatedText = yield Text_1.default.findByIdAndUpdate(id, { language, text }, { new: true });
+        res.status(200).json(updatedText);
+    }
+    catch (err) {
+        res.status(500).json({ message: 'Error updating text' });
+    }
+}));
+router.delete('/texts/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    try {
+        yield Text_1.default.findByIdAndDelete(id);
+        res.status(200).json({ message: 'Text deleted successfully' });
+    }
+    catch (err) {
+        res.status(500).json({ message: 'Error deleting text' });
+    }
 }));
 exports.default = router;

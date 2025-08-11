@@ -43,7 +43,32 @@ router.get('/random-text', async (req: Request, res: Response) => {
 
 router.get('/texts', async (req: Request, res: Response) => {
     const texts = await TextModel.find();
-    res.json(texts);
+    res.status(200).json(texts);
+})
+
+router.put('/texts/:id', async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const { language, text } = req.body;
+    try {
+        const updatedText = await TextModel.findByIdAndUpdate(
+            id,
+            { language, text },
+            { new: true }
+        );
+        res.status(200).json(updatedText);
+    } catch (err) {
+        res.status(500).json({ message: 'Error updating text' })
+    }
+})
+
+router.delete('/texts/:id', async (req: Request, res: Response) => {
+    const { id } = req.params;
+    try {
+        await TextModel.findByIdAndDelete(id);
+        res.status(200).json({ message: 'Text deleted successfully' })
+    } catch (err) {
+        res.status(500).json({ message: 'Error deleting text' })
+    }
 })
 
 export default router;
