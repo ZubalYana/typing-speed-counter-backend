@@ -27,30 +27,26 @@ router.post('/text', (req, res) => __awaiter(void 0, void 0, void 0, function* (
         res.status(500).json({ error: 'Internal server error' });
     }
 }));
-router.get('/random-text', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.get("/random-text", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const lang = req.query.lang;
-        let pipeline = [];
-        if (lang) {
-            pipeline.push({ $match: { language: lang } });
+        const { lang, difficultyLevel } = req.query;
+        const filter = {};
+        if (lang && lang !== "Any") {
+            filter.language = lang;
         }
-        pipeline.push({ $sample: { size: 1 } });
-        const result = yield Text_1.default.aggregate(pipeline);
-        if (lang && (!result || result.length === 0)) {
-            const fallback = yield Text_1.default.aggregate([{ $sample: { size: 1 } }]);
-            res.json(fallback[0]);
+        if (difficultyLevel && difficultyLevel !== "Any") {
+            filter.difficultyLevel = difficultyLevel;
         }
-        else {
-            res.json(result[0]);
+        const texts = yield Text_1.default.find(filter);
+        if (!texts.length) {
+            return res.status(404).json({ error: "No matching texts found" });
         }
-        const difficulty = req.query.difficultyLevel;
-        if (difficulty) {
-            pipeline.push({ $match: { difficultyLevel: difficulty } });
-        }
+        const randomText = texts[Math.floor(Math.random() * texts.length)];
+        res.json(randomText);
     }
-    catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Internal server error' });
+    catch (err) {
+        console.error("Error fetching random text:", err);
+        res.status(500).json({ error: "Internal server error" });
     }
 }));
 router.get('/texts', (req, res) => __awaiter(void 0, void 0, void 0, function* () {

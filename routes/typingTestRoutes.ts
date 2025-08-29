@@ -54,6 +54,7 @@ router.get('/typing-tests', authMiddleware, async (req: Request, res: Response) 
         const tests = await TypingTestModel.find({ user: userId })
             .sort({ createdAt: -1 })
             .limit(limit)
+            .populate("user", "name email")
             .lean();
 
         return res.status(200).json({ tests });

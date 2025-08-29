@@ -23,7 +23,7 @@ router.get('/typing-tests', (req, res) => __awaiter(void 0, void 0, void 0, func
             .populate('user', 'name email registered')
             .sort({ cpm: -1 })
             .limit(10);
-        console.log('Typing tests:', typingTests);
+        console.log("Populated:", JSON.stringify(typingTests, null, 2));
         res.status(200).json({ tests: typingTests });
     }
     catch (err) {

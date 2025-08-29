@@ -61,6 +61,7 @@ router.get('/typing-tests', AuthMiddleware_1.default, (req, res) => __awaiter(vo
         const tests = yield TypingTest_1.default.find({ user: userId })
             .sort({ createdAt: -1 })
             .limit(limit)
+            .populate("user", "name email")
             .lean();
         return res.status(200).json({ tests });
     }
