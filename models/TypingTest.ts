@@ -1,4 +1,5 @@
 import mongoose from 'mongoose'
+import { diff } from 'util';
 
 const typingTestSchema = new mongoose.Schema({
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
@@ -6,6 +7,7 @@ const typingTestSchema = new mongoose.Schema({
     cpm: { type: Number, required: true },
     accuracy: { type: Number, required: true },
     mistakes: { type: Number, required: true },
+    difficultyLevel: { type: String, required: true },
     textLanguage: { type: String, required: true },
     durationSec: { type: Number },
     textId: { type: String },

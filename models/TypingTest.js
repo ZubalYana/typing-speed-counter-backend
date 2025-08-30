@@ -10,6 +10,7 @@ const typingTestSchema = new mongoose_1.default.Schema({
     cpm: { type: Number, required: true },
     accuracy: { type: Number, required: true },
     mistakes: { type: Number, required: true },
+    difficultyLevel: { type: String, required: true },
     textLanguage: { type: String, required: true },
     durationSec: { type: Number },
     textId: { type: String },

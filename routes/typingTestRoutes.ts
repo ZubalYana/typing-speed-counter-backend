@@ -8,7 +8,7 @@ const router = Router();
 router.post('/typing-tests', authMiddleware, async (req: Request, res: Response) => {
     try {
         const userId = (req as any).userId;
-        const { wpm, cpm, accuracy, mistakes, durationSec, textId, textLanguage } = req.body;
+        const { wpm, cpm, accuracy, mistakes, difficultyLevel, durationSec, textId, textLanguage } = req.body;
 
         if (typeof wpm !== 'number' || wpm < 0) {
             return res.status(400).json({ message: 'WPM must be a non-negative number' });
@@ -26,12 +26,17 @@ router.post('/typing-tests', authMiddleware, async (req: Request, res: Response)
             return res.status(400).json({ message: 'textLanguage is required and must be a non-empty string' });
         }
 
+        if (!difficultyLevel || typeof difficultyLevel !== 'string' || difficultyLevel.trim() === '') {
+            return res.status(400).json({ message: 'difficultyLevel is required and must be a non-empty string' });
+        }
+
         const newTest = new TypingTestModel({
             user: userId,
             wpm,
             cpm,
             accuracy,
             mistakes,
+            difficultyLevel,
             durationSec,
             textId,
             textLanguage: textLanguage.trim(),
@@ -63,6 +68,24 @@ router.get('/typing-tests', authMiddleware, async (req: Request, res: Response) 
         return res.status(500).json({ message: 'Internal server error' });
     }
 });
+
+router.get('/typing-tests/leaders', async (req: Request, res: Response) => {
+    try {
+        const limit = Math.min(parseInt((req.query.limit as string) || '50', 10), 100);
+
+        const tests = await TypingTestModel.find({})
+            .sort({ cpm: -1 })
+            .limit(limit)
+            .populate("user", "name email")
+            .lean();
+
+        return res.status(200).json({ tests });
+    } catch (err) {
+        console.error('fetching leaders error:', err);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
 
 router.get('/typing-tests/summary', authMiddleware, async (req: Request, res: Response) => {
     try {

@@ -20,7 +20,7 @@ const router = (0, express_1.Router)();
 router.post('/typing-tests', AuthMiddleware_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const userId = req.userId;
-        const { wpm, cpm, accuracy, mistakes, durationSec, textId, textLanguage } = req.body;
+        const { wpm, cpm, accuracy, mistakes, difficultyLevel, durationSec, textId, textLanguage } = req.body;
         if (typeof wpm !== 'number' || wpm < 0) {
             return res.status(400).json({ message: 'WPM must be a non-negative number' });
         }
@@ -36,12 +36,16 @@ router.post('/typing-tests', AuthMiddleware_1.default, (req, res) => __awaiter(v
         if (!textLanguage || typeof textLanguage !== 'string' || textLanguage.trim() === '') {
             return res.status(400).json({ message: 'textLanguage is required and must be a non-empty string' });
         }
+        if (!difficultyLevel || typeof difficultyLevel !== 'string' || difficultyLevel.trim() === '') {
+            return res.status(400).json({ message: 'difficultyLevel is required and must be a non-empty string' });
+        }
         const newTest = new TypingTest_1.default({
             user: userId,
             wpm,
             cpm,
             accuracy,
             mistakes,
+            difficultyLevel,
             durationSec,
             textId,
             textLanguage: textLanguage.trim(),
@@ -67,6 +71,21 @@ router.get('/typing-tests', AuthMiddleware_1.default, (req, res) => __awaiter(vo
     }
     catch (err) {
         console.error('fetching typing tests error:', err);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+}));
+router.get('/typing-tests/leaders', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const limit = Math.min(parseInt(req.query.limit || '50', 10), 100);
+        const tests = yield TypingTest_1.default.find({})
+            .sort({ cpm: -1 })
+            .limit(limit)
+            .populate("user", "name email")
+            .lean();
+        return res.status(200).json({ tests });
+    }
+    catch (err) {
+        console.error('fetching leaders error:', err);
         return res.status(500).json({ message: 'Internal server error' });
     }
 }));
