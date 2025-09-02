@@ -6,9 +6,10 @@ const userSchema = new mongoose.Schema({
     password: { type: String, required: true },
     isVerified: { type: Boolean, default: false },
     registered: { type: Date, default: Date.now },
-    role: { type: String, default: "User" },
-    isBlocked: { type: Boolean, default: false }
-})
+    role: { type: String, default: "User", enum: ["User", "Admin"] },
+    isBlocked: { type: Boolean, default: false },
+    certificates: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Certificate' }]
+});
 
 const UserModel = mongoose.model('User', userSchema)
 
