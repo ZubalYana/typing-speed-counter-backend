@@ -48,9 +48,10 @@ router.post('/typing-tests', authMiddleware, async (req: Request, res: Response)
         await newTest.save();
 
         let newCertificate = null;
+        const minimum_accuracy_threshold = 90;
 
         const user = await UserModel.findById(userId);
-        if (user && cpm > (user.bestCpm || 0)) {
+        if (user && cpm > (user.bestCpm || 0) && accuracy >= minimum_accuracy_threshold) {
             user.bestCpm = cpm;
 
             const validationId = crypto.randomBytes(8).toString("hex");
