@@ -8,7 +8,8 @@ const userSchema = new mongoose.Schema({
     registered: { type: Date, default: Date.now },
     role: { type: String, default: "User", enum: ["User", "Admin"] },
     isBlocked: { type: Boolean, default: false },
-    certificates: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Certificate' }]
+    certificates: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Certificate' }],
+    bestCpm: { type: Number, default: 0 }
 });
 
 const UserModel = mongoose.model('User', userSchema)
