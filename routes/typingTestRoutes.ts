@@ -2,6 +2,9 @@ import { Router, Request, Response } from 'express';
 import authMiddleware from '../middleware/AuthMiddleware';
 import TypingTestModel from '../models/TypingTest';
 import mongoose from 'mongoose'
+import UserModel from '../models/User';
+import CertificateModel from '../models/Certificate';
+import crypto from 'crypto'
 
 const router = Router();
 
@@ -44,7 +47,31 @@ router.post('/typing-tests', authMiddleware, async (req: Request, res: Response)
 
         await newTest.save();
 
-        return res.status(201).json({ message: 'Test saved', test: newTest });
+        let newCertificate = null;
+
+        const user = await UserModel.findById(userId);
+        if (user && cpm > (user.bestCpm || 0)) {
+            user.bestCpm = cpm;
+
+            const validationId = crypto.randomBytes(8).toString("hex");
+
+            newCertificate = new CertificateModel({
+                userId,
+                cpm,
+                accuracy,
+                validationId,
+            })
+            await newCertificate.save();
+
+            user.certificates.push(newCertificate._id);
+            await user.save();
+        }
+
+        return res.status(201).json({
+            message: 'Test saved',
+            test: newTest,
+            certificate: newCertificate ? newCertificate : null,
+        });
     } catch (err) {
         console.error('saving typing test error:', err);
         return res.status(500).json({ message: 'Internal server error' });

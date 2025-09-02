@@ -16,6 +16,9 @@ const express_1 = require("express");
 const AuthMiddleware_1 = __importDefault(require("../middleware/AuthMiddleware"));
 const TypingTest_1 = __importDefault(require("../models/TypingTest"));
 const mongoose_1 = __importDefault(require("mongoose"));
+const User_1 = __importDefault(require("../models/User"));
+const Certificate_1 = __importDefault(require("../models/Certificate"));
+const crypto_1 = __importDefault(require("crypto"));
 const router = (0, express_1.Router)();
 router.post('/typing-tests', AuthMiddleware_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -51,7 +54,26 @@ router.post('/typing-tests', AuthMiddleware_1.default, (req, res) => __awaiter(v
             textLanguage: textLanguage.trim(),
         });
         yield newTest.save();
-        return res.status(201).json({ message: 'Test saved', test: newTest });
+        let newCertificate = null;
+        const user = yield User_1.default.findById(userId);
+        if (user && cpm > (user.bestCpm || 0)) {
+            user.bestCpm = cpm;
+            const validationId = crypto_1.default.randomBytes(8).toString("hex");
+            newCertificate = new Certificate_1.default({
+                userId,
+                cpm,
+                accuracy,
+                validationId,
+            });
+            yield newCertificate.save();
+            user.certificates.push(newCertificate._id);
+            yield user.save();
+        }
+        return res.status(201).json({
+            message: 'Test saved',
+            test: newTest,
+            certificate: newCertificate ? newCertificate : null,
+        });
     }
     catch (err) {
         console.error('saving typing test error:', err);

@@ -10,8 +10,10 @@ const userSchema = new mongoose_1.default.Schema({
     password: { type: String, required: true },
     isVerified: { type: Boolean, default: false },
     registered: { type: Date, default: Date.now },
-    role: { type: String, default: "User" },
-    isBlocked: { type: Boolean, default: false }
+    role: { type: String, default: "User", enum: ["User", "Admin"] },
+    isBlocked: { type: Boolean, default: false },
+    certificates: [{ type: mongoose_1.default.Schema.Types.ObjectId, ref: 'Certificate' }],
+    bestCpm: { type: Number, default: 0 }
 });
 const UserModel = mongoose_1.default.model('User', userSchema);
 exports.default = UserModel;
