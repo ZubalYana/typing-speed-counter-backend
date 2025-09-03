@@ -61,6 +61,11 @@ router.post('/typing-tests', authMiddleware, async (req: Request, res: Response)
                 cpm,
                 accuracy,
                 validationId,
+                language: textLanguage.trim(),
+                userName: user.name,
+                mistakes,
+                difficultyLevel,
+                time: durationSec
             })
             await newCertificate.save();
 
