@@ -13,6 +13,37 @@ const JWT_SECRET = process.env.JWT_SECRET || 'secret'
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+/**
+ * @swagger
+ * /signUp:
+ *   post:
+ *     summary: Register a new user
+ *     description: Creates a new user account with name, email, and password. Returns a JWT token and user details.
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [name, email, password]
+ *             properties:
+ *               name:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *                 format: email
+ *               password:
+ *                 type: string
+ *                 format: password
+ *     responses:
+ *       201:
+ *         description: User created successfully
+ *       409:
+ *         description: Email already in use
+ *       500:
+ *         description: Internal server error
+ */
 router.post('/signUp', async (req: Request, res: Response) => {
     try {
         const { name, email, password } = req.body;
@@ -48,6 +79,37 @@ router.post('/signUp', async (req: Request, res: Response) => {
     }
 })
 
+/**
+ * @swagger
+ * /login:
+ *   post:
+ *     summary: Login a user
+ *     description: Authenticates a user with email and password. Returns a JWT token and user details.
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [email, password]
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *               password:
+ *                 type: string
+ *                 format: password
+ *     responses:
+ *       200:
+ *         description: Login successful
+ *       401:
+ *         description: Invalid credentials
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Internal server error
+ */
 router.post('/login', async (req: Request, res: Response) => {
     try {
         const { email, password } = req.body;
@@ -80,6 +142,23 @@ router.post('/login', async (req: Request, res: Response) => {
     }
 })
 
+/**
+ * @swagger
+ * /user-profile:
+ *   get:
+ *     summary: Get user profile
+ *     description: Returns the authenticated user's profile (excluding password).
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: User profile
+ *       404:
+ *         description: User not found
+ *       401:
+ *         description: Unauthorized
+ */
 router.get('/user-profile', authMiddleware, async (req: Request, res: Response) => {
     const userId = (req as any).userId;
     const user = await UserModel.findById(userId).select('-password');
@@ -88,6 +167,30 @@ router.get('/user-profile', authMiddleware, async (req: Request, res: Response) 
     res.status(200).json({ user })
 })
 
+/**
+ * @swagger
+ * /magic-login:
+ *   post:
+ *     summary: Request a magic login link
+ *     description: Sends a magic login link to the user's email. If the email is not registered, returns a generic success message.
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [email]
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *     responses:
+ *       200:
+ *         description: Magic login link sent (or would be if email exists)
+ *       400:
+ *         description: Email is required
+ */
 router.post('/magic-login', async (req: Request, res: Response) => {
     const { email } = req.body;
     if (!email) return res.status(400).json({ message: 'Email is required' });
@@ -110,6 +213,29 @@ router.post('/magic-login', async (req: Request, res: Response) => {
     res.status(200).json({ message: 'Magic login link sent.' });
 });
 
+/**
+ * @swagger
+ * /magic-login/verify:
+ *   post:
+ *     summary: Verify a magic login token
+ *     description: Verifies the magic login token and returns a standard JWT token for authenticated sessions.
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [token]
+ *             properties:
+ *               token:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Magic login successful, JWT returned
+ *       400:
+ *         description: Invalid or expired token
+ */
 router.post('/magic-login/verify', async (req: Request, res: Response) => {
     const { token } = req.body;
     if (!token) return res.status(400).json({ message: 'Token is required' });

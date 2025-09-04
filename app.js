@@ -11,8 +11,10 @@ const textRoutes_1 = __importDefault(require("./routes/textRoutes"));
 const authRoutes_1 = __importDefault(require("./routes/authRoutes"));
 const typingTestRoutes_1 = __importDefault(require("./routes/typingTestRoutes"));
 const adminRoutes_1 = __importDefault(require("./routes/adminRoutes"));
+const swagger_1 = require("./swagger");
 dotenv_1.default.config();
 const app = (0, express_1.default)();
+(0, swagger_1.setupSwagger)(app);
 const PORT = process.env.PORT || 5000;
 app.use((0, cors_1.default)());
 app.use(express_1.default.json());
@@ -26,6 +28,7 @@ mongoose_1.default
     console.log('Connected to MongoDB');
     app.listen(PORT, () => {
         console.log(`Server running at http://localhost:${PORT}`);
+        console.log(`Swagger docs available at http://localhost:${PORT}/api-docs`);
     });
 })
     .catch((err) => {

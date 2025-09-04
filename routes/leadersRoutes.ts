@@ -3,6 +3,60 @@ import TypingTestModel from '../models/TypingTest';
 
 const router = Router();
 
+/**
+ * @swagger
+ * /typing-tests:
+ *   get:
+ *     summary: Get top typing tests
+ *     description: Returns the top 10 typing tests across all users, sorted by CPM in descending order. User information (name, email, registered) is included in the response.
+ *     tags: [Typing Tests]
+ *     responses:
+ *       200:
+ *         description: List of top typing tests
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 tests:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       _id:
+ *                         type: string
+ *                       wpm:
+ *                         type: number
+ *                       cpm:
+ *                         type: number
+ *                       accuracy:
+ *                         type: number
+ *                       mistakes:
+ *                         type: number
+ *                       difficultyLevel:
+ *                         type: string
+ *                       durationSec:
+ *                         type: number
+ *                       textLanguage:
+ *                         type: string
+ *                       createdAt:
+ *                         type: string
+ *                         format: date-time
+ *                       user:
+ *                         type: object
+ *                         properties:
+ *                           _id:
+ *                             type: string
+ *                           name:
+ *                             type: string
+ *                           email:
+ *                             type: string
+ *                           registered:
+ *                             type: string
+ *                             format: date-time
+ *       500:
+ *         description: Failed to fetch typing tests
+ */
 router.get('/typing-tests', async (req: Request, res: Response) => {
     try {
         console.log('Fetching typing tests with user populated...');

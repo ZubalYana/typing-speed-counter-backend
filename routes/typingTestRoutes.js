@@ -20,6 +20,48 @@ const User_1 = __importDefault(require("../models/User"));
 const Certificate_1 = __importDefault(require("../models/Certificate"));
 const crypto_1 = __importDefault(require("crypto"));
 const router = (0, express_1.Router)();
+/**
+ * @swagger
+ * /typing-tests:
+ *   post:
+ *     summary: Save a new typing test
+ *     tags: [Typing Tests]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [wpm, cpm, accuracy, mistakes, difficultyLevel, textLanguage]
+ *             properties:
+ *               wpm:
+ *                 type: number
+ *               cpm:
+ *                 type: number
+ *               accuracy:
+ *                 type: number
+ *                 minimum: 0
+ *                 maximum: 100
+ *               mistakes:
+ *                 type: number
+ *               difficultyLevel:
+ *                 type: string
+ *               durationSec:
+ *                 type: number
+ *               textId:
+ *                 type: string
+ *               textLanguage:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Typing test created successfully
+ *       400:
+ *         description: Validation error
+ *       500:
+ *         description: Internal server error
+ */
 router.post('/typing-tests', AuthMiddleware_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const userId = req.userId;
@@ -86,6 +128,28 @@ router.post('/typing-tests', AuthMiddleware_1.default, (req, res) => __awaiter(v
         return res.status(500).json({ message: 'Internal server error' });
     }
 }));
+/**
+ * @swagger
+ * /typing-tests:
+ *   get:
+ *     summary: Get typing tests of the authenticated user
+ *     tags: [Typing Tests]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 50
+ *           maximum: 100
+ *         description: Maximum number of tests to return
+ *     responses:
+ *       200:
+ *         description: List of typing tests
+ *       500:
+ *         description: Internal server error
+ */
 router.get('/typing-tests', AuthMiddleware_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const userId = req.userId;
@@ -102,6 +166,27 @@ router.get('/typing-tests', AuthMiddleware_1.default, (req, res) => __awaiter(vo
         return res.status(500).json({ message: 'Internal server error' });
     }
 }));
+/**
+ * @swagger
+ * /typing-tests/leaders:
+ *   get:
+ *     summary: Get global leaderboard
+ *     description: Returns the top typing test results across all users, sorted by CPM in descending order.
+ *     tags: [Typing Tests]
+ *     parameters:
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 50
+ *           maximum: 100
+ *         description: Maximum number of leaderboard entries to return.
+ *     responses:
+ *       200:
+ *         description: List of top typing test results
+ *       500:
+ *         description: Internal server error
+ */
 router.get('/typing-tests/leaders', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const limit = Math.min(parseInt(req.query.limit || '50', 10), 100);
@@ -117,6 +202,21 @@ router.get('/typing-tests/leaders', (req, res) => __awaiter(void 0, void 0, void
         return res.status(500).json({ message: 'Internal server error' });
     }
 }));
+/**
+ * @swagger
+ * /typing-tests/summary:
+ *   get:
+ *     summary: Get weekly typing performance summary
+ *     description: Returns the average WPM, average accuracy, and total tests completed by the authenticated user over the last 7 days.
+ *     tags: [Typing Tests]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Weekly typing performance summary
+ *       500:
+ *         description: Internal server error
+ */
 router.get('/typing-tests/summary', AuthMiddleware_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const userId = req.userId;
@@ -148,6 +248,30 @@ router.get('/typing-tests/summary', AuthMiddleware_1.default, (req, res) => __aw
         return res.status(500).json({ message: 'Internal server error' });
     }
 }));
+/**
+ * @swagger
+ * /cpm-statistics:
+ *   get:
+ *     summary: Get CPM statistics for the last 20 days
+ *     description: Returns up to the last 20 typing test results (CPM, mistakes, date) for the authenticated user, filtered by language.
+ *     tags: [Typing Tests]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: language
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Language of typing tests to filter (e.g., "english", "french").
+ *     responses:
+ *       200:
+ *         description: CPM statistics for the last 20 days
+ *       400:
+ *         description: Language query parameter missing or invalid
+ *       500:
+ *         description: Internal server error
+ */
 router.get('/cpm-statistics', AuthMiddleware_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const userId = req.userId;

@@ -8,6 +8,48 @@ import crypto from 'crypto'
 
 const router = Router();
 
+/**
+ * @swagger
+ * /typing-tests:
+ *   post:
+ *     summary: Save a new typing test
+ *     tags: [Typing Tests]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [wpm, cpm, accuracy, mistakes, difficultyLevel, textLanguage]
+ *             properties:
+ *               wpm:
+ *                 type: number
+ *               cpm:
+ *                 type: number
+ *               accuracy:
+ *                 type: number
+ *                 minimum: 0
+ *                 maximum: 100
+ *               mistakes:
+ *                 type: number
+ *               difficultyLevel:
+ *                 type: string
+ *               durationSec:
+ *                 type: number
+ *               textId:
+ *                 type: string
+ *               textLanguage:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Typing test created successfully
+ *       400:
+ *         description: Validation error
+ *       500:
+ *         description: Internal server error
+ */
 router.post('/typing-tests', authMiddleware, async (req: Request, res: Response) => {
     try {
         const userId = (req as any).userId;
@@ -84,6 +126,28 @@ router.post('/typing-tests', authMiddleware, async (req: Request, res: Response)
     }
 });
 
+/**
+ * @swagger
+ * /typing-tests:
+ *   get:
+ *     summary: Get typing tests of the authenticated user
+ *     tags: [Typing Tests]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 50
+ *           maximum: 100
+ *         description: Maximum number of tests to return
+ *     responses:
+ *       200:
+ *         description: List of typing tests
+ *       500:
+ *         description: Internal server error
+ */
 router.get('/typing-tests', authMiddleware, async (req: Request, res: Response) => {
     try {
         const userId = (req as any).userId;
@@ -102,6 +166,27 @@ router.get('/typing-tests', authMiddleware, async (req: Request, res: Response) 
     }
 });
 
+/**
+ * @swagger
+ * /typing-tests/leaders:
+ *   get:
+ *     summary: Get global leaderboard
+ *     description: Returns the top typing test results across all users, sorted by CPM in descending order.
+ *     tags: [Typing Tests]
+ *     parameters:
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 50
+ *           maximum: 100
+ *         description: Maximum number of leaderboard entries to return.
+ *     responses:
+ *       200:
+ *         description: List of top typing test results
+ *       500:
+ *         description: Internal server error
+ */
 router.get('/typing-tests/leaders', async (req: Request, res: Response) => {
     try {
         const limit = Math.min(parseInt((req.query.limit as string) || '50', 10), 100);
@@ -119,7 +204,21 @@ router.get('/typing-tests/leaders', async (req: Request, res: Response) => {
     }
 });
 
-
+/**
+ * @swagger
+ * /typing-tests/summary:
+ *   get:
+ *     summary: Get weekly typing performance summary
+ *     description: Returns the average WPM, average accuracy, and total tests completed by the authenticated user over the last 7 days.
+ *     tags: [Typing Tests]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Weekly typing performance summary
+ *       500:
+ *         description: Internal server error
+ */
 router.get('/typing-tests/summary', authMiddleware, async (req: Request, res: Response) => {
     try {
         const userId = (req as any).userId;
@@ -153,6 +252,30 @@ router.get('/typing-tests/summary', authMiddleware, async (req: Request, res: Re
     }
 });
 
+/**
+ * @swagger
+ * /cpm-statistics:
+ *   get:
+ *     summary: Get CPM statistics for the last 20 days
+ *     description: Returns up to the last 20 typing test results (CPM, mistakes, date) for the authenticated user, filtered by language.
+ *     tags: [Typing Tests]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: language
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Language of typing tests to filter (e.g., "english", "french").
+ *     responses:
+ *       200:
+ *         description: CPM statistics for the last 20 days
+ *       400:
+ *         description: Language query parameter missing or invalid
+ *       500:
+ *         description: Internal server error
+ */
 router.get('/cpm-statistics', authMiddleware, async (req: Request, res: Response) => {
     try {
         const userId = (req as any).userId;
